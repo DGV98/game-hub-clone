@@ -5,6 +5,7 @@ import GameCardSkeleton from "./GameCardSkeleton";
 import GameCardContainer from "./GameCardContainer";
 import { GameQuery } from "../App";
 import React from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 interface Props {
   gameQuery: GameQuery;
@@ -25,28 +26,39 @@ const GameGrid = ({ gameQuery }: Props) => {
 
   return (
     <Box padding="10px">
-      <SimpleGrid columns={{ sm: 1, md: 2, lg: 3, xl: 4 }} spacing={6}>
-        {isLoading &&
-          skeletons.map((skeleton) => (
-            <GameCardContainer key={skeleton}>
-              <GameCardSkeleton />
-            </GameCardContainer>
-          ))}
-        {data?.pages.map((page, i) => (
-          <React.Fragment key={i}>
-            {page.results.map((game) => (
-              <GameCardContainer key={game.id}>
-                <GameCard game={game} />
+      <InfiniteScroll
+        dataLength={12}
+        next={fetchNextPage}
+        hasMore={true}
+        loader={
+          <GameCardContainer>
+            <GameCardSkeleton />
+          </GameCardContainer>
+        }
+      >
+        <SimpleGrid columns={{ sm: 1, md: 2, lg: 3, xl: 4 }} spacing={6}>
+          {isLoading &&
+            skeletons.map((skeleton) => (
+              <GameCardContainer key={skeleton}>
+                <GameCardSkeleton />
               </GameCardContainer>
             ))}
-          </React.Fragment>
-        ))}
-      </SimpleGrid>
-      {hasNextPage && (
+          {data?.pages.map((page, i) => (
+            <React.Fragment key={i}>
+              {page.results.map((game) => (
+                <GameCardContainer key={game.id}>
+                  <GameCard game={game} />
+                </GameCardContainer>
+              ))}
+            </React.Fragment>
+          ))}
+        </SimpleGrid>
+      </InfiniteScroll>
+      {/* {hasNextPage && (
         <Button onClick={() => fetchNextPage()} marginY={5}>
           {isFetchingNextPage ? "Loading..." : "Load More"}
         </Button>
-      )}
+      )} */}
     </Box>
   );
 };
