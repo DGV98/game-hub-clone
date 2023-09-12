@@ -24,42 +24,42 @@ const GameGrid = ({ gameQuery }: Props) => {
 
   if (error) return <Text>{error.message}</Text>;
 
+  const fetchedGamesCount =
+    data?.pages.reduce((acc, page) => acc + page.results.length, 0) || 0;
+
   return (
-    <Box padding="10px">
-      <InfiniteScroll
-        dataLength={12}
-        next={fetchNextPage}
-        hasMore={true}
-        loader={
-          <GameCardContainer>
-            <GameCardSkeleton />
-          </GameCardContainer>
-        }
-      >
+    <InfiniteScroll
+      dataLength={fetchedGamesCount}
+      next={fetchNextPage}
+      hasMore={!!hasNextPage}
+      loader={
         <SimpleGrid columns={{ sm: 1, md: 2, lg: 3, xl: 4 }} spacing={6}>
-          {isLoading &&
+          {skeletons.map((skeleton) => (
+            <GameCardContainer key={skeleton}>
+              <GameCardSkeleton />
+            </GameCardContainer>
+          ))}
+        </SimpleGrid>
+      }
+    >
+      <SimpleGrid columns={{ sm: 1, md: 2, lg: 3, xl: 4 }} spacing={6}>
+        {/* {isLoading &&
             skeletons.map((skeleton) => (
               <GameCardContainer key={skeleton}>
                 <GameCardSkeleton />
               </GameCardContainer>
+            ))} */}
+        {data?.pages.map((page, i) => (
+          <React.Fragment key={i}>
+            {page.results.map((game) => (
+              <GameCardContainer key={game.id}>
+                <GameCard game={game} />
+              </GameCardContainer>
             ))}
-          {data?.pages.map((page, i) => (
-            <React.Fragment key={i}>
-              {page.results.map((game) => (
-                <GameCardContainer key={game.id}>
-                  <GameCard game={game} />
-                </GameCardContainer>
-              ))}
-            </React.Fragment>
-          ))}
-        </SimpleGrid>
-      </InfiniteScroll>
-      {/* {hasNextPage && (
-        <Button onClick={() => fetchNextPage()} marginY={5}>
-          {isFetchingNextPage ? "Loading..." : "Load More"}
-        </Button>
-      )} */}
-    </Box>
+          </React.Fragment>
+        ))}
+      </SimpleGrid>
+    </InfiniteScroll>
   );
 };
 
